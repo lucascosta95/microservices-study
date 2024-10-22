@@ -6,6 +6,7 @@ import br.com.lucascosta.userserviceapi.mapper.UserMapper;
 import br.com.lucascosta.userserviceapi.repository.UserRepository;
 import models.exceptions.ResourceNotFoundException;
 import models.requests.CreateUserRequest;
+import models.requests.UpdateUserRequest;
 import models.responses.UserResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -124,6 +125,71 @@ class UserServiceTest {
             verify(userMapper, times(0)).fromRequest(request);
             verify(passwordEncoder, times(0)).encode(request.password());
             verify(userRepository, times(0)).save(any(User.class));
+        }
+    }
+
+    @Nested
+    class UpdateUser {
+        @Test
+        void whenCallUpdateUserThenSuccess() {
+            final var id = "1";
+            final var request = generateMock(UpdateUserRequest.class);
+            final var entity = generateMock(User.class).withId(id);
+
+            when(userMapper.update(request, entity)).thenReturn(entity);
+            when(userRepository.save(any(User.class))).thenReturn(entity);
+            when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+            when(userRepository.findById(anyString())).thenReturn(Optional.of(entity));
+            when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(entity));
+
+            userService.updateById(anyString(), request);
+
+            verify(userMapper).fromEntity(entity);
+            verify(userMapper).update(request, entity);
+            verify(userRepository).findById(anyString());
+            verify(userRepository).save(any(User.class));
+            verify(userRepository).findByEmail(request.email());
+            verify(passwordEncoder).encode(request.password());
+        }
+
+        @Test
+        void whenCallUpdateUserWithInvalidThenThrowResourceNotFoundException() {
+            final var request = generateMock(UpdateUserRequest.class);
+            when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+            try {
+                userService.updateById("1", request);
+            } catch (Exception e) {
+                assertEquals(ResourceNotFoundException.class, e.getClass());
+                assertEquals("Object not found. id: 1, type: UserResponse", e.getMessage());
+            }
+
+            verify(userRepository).findByEmail(request.email());
+            verify(userMapper, times(0)).update(any(), any());
+            verify(userRepository, times(0)).save(any(User.class));
+            verify(passwordEncoder, times(0)).encode(request.password());
+        }
+
+        @Test
+        void whenCallUpdateUserWithInvalidEmailThenThrowDataIntegrityViolationException() {
+            final var request = generateMock(UpdateUserRequest.class);
+            final var entity = generateMock(User.class);
+
+            when(userRepository.findById(anyString())).thenReturn(Optional.of(entity));
+            when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(entity));
+
+            try {
+                userService.updateById("1", request);
+            } catch (Exception e) {
+                assertEquals(ResourceNotFoundException.class, e.getClass());
+                assertEquals(String.format("Email [ %s ]  already exists", request.email()), e.getMessage());
+            }
+
+            verify(userRepository).findById(anyString());
+            verify(userRepository).findByEmail(request.email());
+            verify(userMapper, times(0)).update(any(), any());
+            verify(userRepository, times(0)).save(any(User.class));
+            verify(passwordEncoder, times(0)).encode(request.password());
         }
     }
 }
