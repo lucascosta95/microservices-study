@@ -5,7 +5,7 @@ import models.exceptions.StandardError;
 import models.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,13 +16,13 @@ import java.util.ArrayList;
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    ResponseEntity<StandardError> handleNotFoundException(final UsernameNotFoundException ex, final HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(BadCredentialsException.class)
+    ResponseEntity<StandardError> handleBadCredentialsException(final BadCredentialsException ex, final HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(StandardError.builder()
                         .timestamp(LocalDateTime.now())
-                        .status(HttpStatus.NOT_FOUND.value())
-                        .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                         .message(ex.getMessage())
                         .path(request.getRequestURI())
                         .build()

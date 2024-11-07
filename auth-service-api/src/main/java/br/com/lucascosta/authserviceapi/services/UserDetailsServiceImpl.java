@@ -3,6 +3,7 @@ package br.com.lucascosta.authserviceapi.services;
 import br.com.lucascosta.authserviceapi.repositories.UserRepository;
 import br.com.lucascosta.authserviceapi.security.dtos.UserDetailsDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,6 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .id(entity.getId())
                 .userName(entity.getEmail())
                 .password(entity.getPassword())
+                .authorities(entity.getProfiles().stream().map(x -> new SimpleGrantedAuthority(x.getDescription())).toList())
                 .build();
     }
 }
