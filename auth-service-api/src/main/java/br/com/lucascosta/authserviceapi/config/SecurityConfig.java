@@ -20,7 +20,7 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/swagger-ui/**"),
                         new AntPathRequestMatcher("/swagger-ui.html"),
                         new AntPathRequestMatcher("/v3/api-docs/**"),
-                        new AntPathRequestMatcher("/api/auth/login/**")).permitAll().anyRequest().authenticated()
+                        new AntPathRequestMatcher("/api/auth/**")).permitAll().anyRequest().authenticated()
                 ).sessionManagement()
                 .sessionCreationPolicy(STATELESS)
                 .and().build();

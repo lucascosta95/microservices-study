@@ -1,5 +1,6 @@
-package br.com.lucascosta.authserviceapi.security.dtos;
+package br.com.lucascosta.authserviceapi.security;
 
+import br.com.lucascosta.authserviceapi.security.dtos.UserDetailsDTO;
 import br.com.lucascosta.authserviceapi.utils.JWTUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,8 +34,8 @@ public class JWTAuthenticationImpl {
 
         final var token = jwtUtils.generateToken(detailsDTO);
         return AuthenticationResponse.builder()
-                .type("JWT")
-                .token(String.format("Bearer %s", token))
+                .type("Bearer")
+                .token(token)
                 .build();
     }
 }
