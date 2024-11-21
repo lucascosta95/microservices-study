@@ -3,27 +3,29 @@ package br.com.lucascosta.authserviceapi.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 public class SecurityConfig {
 
+    static final String[] AUTHORIZED_WHITELIST = {"/swagger-ui/index.html", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**", "/api/auth/**"};
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf().disable()
-                .authorizeHttpRequests(http -> http.requestMatchers(
-                        new AntPathRequestMatcher("/swagger-ui/**"),
-                        new AntPathRequestMatcher("/swagger-ui.html"),
-                        new AntPathRequestMatcher("/v3/api-docs/**"),
-                        new AntPathRequestMatcher("/api/auth/**")).permitAll().anyRequest().authenticated()
-                ).sessionManagement()
-                .sessionCreationPolicy(STATELESS)
-                .and().build();
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(
+                        http -> http
+                                .requestMatchers(AUTHORIZED_WHITELIST)
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated()
+                ).sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .build();
     }
 
     @Bean
