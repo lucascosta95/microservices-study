@@ -8,7 +8,7 @@ public enum ProfileEnum {
     ROLE_TECHNICIAN("ROLE_TECHNICIAN");
 
     private final String description;
-    
+
     ProfileEnum(String description) {
         this.description = description;
     }
@@ -21,6 +21,6 @@ public enum ProfileEnum {
         return Arrays.stream(ProfileEnum.values())
                 .filter(profileEnum -> profileEnum.getDescription().equals(description))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid profile enum: " + description));
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Invalid profile enum: %s", description)));
     }
 }
