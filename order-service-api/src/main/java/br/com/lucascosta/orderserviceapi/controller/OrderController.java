@@ -60,4 +60,17 @@ public interface OrderController {
             @Parameter(description = "Update order request", required = true)
             @Valid @RequestBody UpdateOrderRequest updateOrderRequest
     );
+
+    @Operation(summary = "Delete order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
+    })
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> delete(
+            @NotNull(message = "Order id cannot be null")
+            @Parameter(description = "Order id", required = true, example = "1")
+            @PathVariable Long id
+    );
 }
