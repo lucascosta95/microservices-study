@@ -9,6 +9,8 @@ import models.responses.OrderResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
@@ -16,6 +18,11 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class OrderControllerImpl implements OrderController {
 
     private final OrderService orderService;
+
+    @Override
+    public ResponseEntity<List<OrderResponse>> getAll() {
+        return ResponseEntity.ok(orderService.getAll());
+    }
 
     @Override
     public ResponseEntity<OrderResponse> getOrderById(Long id) {

@@ -13,6 +13,7 @@ import models.responses.OrderResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,14 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+
+    @Override
+    public List<OrderResponse> getAll() {
+        return orderRepository.findAll()
+                .stream()
+                .map(orderMapper::toResponse)
+                .toList();
+    }
 
     @Override
     public OrderResponse getOrderById(Long orderId) {
