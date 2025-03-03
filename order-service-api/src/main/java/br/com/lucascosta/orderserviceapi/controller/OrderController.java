@@ -13,6 +13,7 @@ import models.exceptions.StandardError;
 import models.requests.CreateOrderRequest;
 import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +28,30 @@ public interface OrderController {
     @Operation(summary = "Get all orders")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Orders found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
     @GetMapping()
     ResponseEntity<List<OrderResponse>> getAll();
+
+    @Operation(summary = "Get all orders paginated")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
+    })
+    @GetMapping("/page")
+    ResponseEntity<Page<OrderResponse>> getAllPaginated(
+            @Parameter(description = "Page number", required = true, example = "0")
+            @RequestParam(name = "page", defaultValue = "0") final Integer page,
+
+            @Parameter(description = "Lines per page", required = true, example = "12")
+            @RequestParam(name = "linesPerPage", defaultValue = "12") final Integer linesPerPage,
+
+            @Parameter(description = "Order direction", required = true, example = "ASC")
+            @RequestParam(name = "direction", defaultValue = "ASC") final String direction,
+
+            @Parameter(description = "Order by", required = true, example = "id")
+            @RequestParam(name = "orderBy", defaultValue = "id") final String orderBy
+    );
 
     @Operation(summary = "Get order by id")
     @ApiResponses(value = {

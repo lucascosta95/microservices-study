@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import models.requests.CreateOrderRequest;
 import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,8 +26,13 @@ public class OrderControllerImpl implements OrderController {
     }
 
     @Override
+    public ResponseEntity<Page<OrderResponse>> getAllPaginated(Integer page, Integer linesPerPage, String direction, String orderBy) {
+        return ResponseEntity.ok().body(orderService.getAllPaginated(page, linesPerPage, direction, orderBy));
+    }
+
+    @Override
     public ResponseEntity<OrderResponse> getOrderById(Long id) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
+        return ResponseEntity.ok().body(orderService.getOrderById(id));
     }
 
     @Override
@@ -37,7 +43,7 @@ public class OrderControllerImpl implements OrderController {
 
     @Override
     public ResponseEntity<OrderResponse> update(Long id, UpdateOrderRequest updateOrderRequest) {
-        return ResponseEntity.ok(orderService.update(id, updateOrderRequest));
+        return ResponseEntity.ok().body(orderService.update(id, updateOrderRequest));
     }
 
     @Override
