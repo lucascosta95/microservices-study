@@ -1,15 +1,18 @@
 package br.com.lucascosta.orderserviceapi.service.impl;
 
+import br.com.lucascosta.orderserviceapi.clients.UserServiceFeignClient;
 import br.com.lucascosta.orderserviceapi.entities.Order;
 import br.com.lucascosta.orderserviceapi.mapper.OrderMapper;
 import br.com.lucascosta.orderserviceapi.repositories.OrderRepository;
 import br.com.lucascosta.orderserviceapi.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import models.enums.OrderStatusEnum;
 import models.exceptions.ResourceNotFoundException;
 import models.requests.CreateOrderRequest;
 import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
+import models.responses.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,10 +21,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
+    private final UserServiceFeignClient userServiceFeignClient;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
 
@@ -53,14 +58,22 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-
     @Override
     public void save(CreateOrderRequest createOrderRequest) {
+        final var requester = validateUserId(createOrderRequest.requesterId());
+        final var customer = validateUserId(createOrderRequest.customerId());
+
+        //TODO: No futuro será necessario o requester e o customer para enviar e-mail
+        log.info("Requester: {}", requester);
+        log.info("Customer: {}", customer);
+
         orderRepository.save(orderMapper.fromRequest(createOrderRequest));
     }
 
     @Override
     public OrderResponse update(final Long id, UpdateOrderRequest updateOrderRequest) {
+        validateUsers(updateOrderRequest);
+
         var entity = orderRepository.findById(id)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
@@ -81,4 +94,12 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteById(id);
     }
 
+    UserResponse validateUserId(final String userId) {
+        return userServiceFeignClient.findById(userId).getBody();
+    }
+
+    void validateUsers(UpdateOrderRequest updateOrderRequest) {
+        if (updateOrderRequest.requesterId() != null) validateUserId(updateOrderRequest.requesterId());
+        if (updateOrderRequest.customerId() != null) validateUserId(updateOrderRequest.customerId());
+    }
 }
