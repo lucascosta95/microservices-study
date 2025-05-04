@@ -7,12 +7,14 @@ import br.com.lucascosta.orderserviceapi.repositories.OrderRepository;
 import br.com.lucascosta.orderserviceapi.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import models.dtos.OrderCreatedMessage;
 import models.enums.OrderStatusEnum;
 import models.exceptions.ResourceNotFoundException;
 import models.requests.CreateOrderRequest;
 import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
 import models.responses.UserResponse;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final UserServiceFeignClient userServiceFeignClient;
     private final OrderRepository orderRepository;
+    private final RabbitTemplate rabbitTemplate;
     private final OrderMapper orderMapper;
 
     @Override
@@ -62,12 +65,15 @@ public class OrderServiceImpl implements OrderService {
     public void save(CreateOrderRequest createOrderRequest) {
         final var requester = validateUserId(createOrderRequest.requesterId());
         final var customer = validateUserId(createOrderRequest.customerId());
+        var entity = orderRepository.save(orderMapper.fromRequest(createOrderRequest));
 
-        //TODO: No futuro será necessario o requester e o customer para enviar e-mail
-        log.info("Requester: {}", requester);
-        log.info("Customer: {}", customer);
+        log.info("Order created: {}", entity);
 
-        orderRepository.save(orderMapper.fromRequest(createOrderRequest));
+        rabbitTemplate.convertAndSend(
+                "helpdesk",
+                "rk.orders.create",
+                new OrderCreatedMessage(orderMapper.toResponse(entity), customer, requester)
+        );
     }
 
     @Override

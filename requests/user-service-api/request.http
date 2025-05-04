@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:49287/api/users
+
+### Buscar todos os usuários
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### Buscar usuário por ID
+GET {{baseUrl}}/{id}
+Accept: application/json
+
+###
+
+### Criar um novo usuário
+POST {{baseUrl}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao.silva@example.com",
+  "password": "senha123",
+  "profiles": [
+    "ROLE_CUSTOMER"
+  ]
+}
+
+###
+
+### Atualizar um usuário por ID
+PUT {{baseUrl}}/{id}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "João Silva Atualizado",
+  "email": "joao.silva.atualizado@example.com",
+  "password": "novaSenha123",
+  "profiles": [
+    "ROLE_TECHNICIAN",
+    "ROLE_ADMIN"
+  ]
+}
+
+###
+
+### Deletar um usuário por ID
+DELETE {{baseUrl}}/{id}
+Accept: application/json

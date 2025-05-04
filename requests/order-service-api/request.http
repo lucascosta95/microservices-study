@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:51325/api/orders
+
+### Buscar todos as ordens de serviço
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### Buscar ordem de serviço por ID
+GET {{baseUrl}}/3
+Accept: application/json
+
+###
+
+### Criar um novo ordem de serviço
+POST {{baseUrl}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "requesterId": "67030478136ca341b6801890",
+  "customerId": "672cb80ce81f670c6f9923ca",
+  "title": "Fix my computer",
+  "description": "My computer is not turning on",
+  "status": "Open"
+}
+
+###
+
+### Atualizar um ordem de serviço por ID
+PUT {{baseUrl}}/3
+Content-Type: application/json
+Accept: application/json
+
+{
+  "requesterId": "672cb80ce81f670c6f9923ca",
+  "customerId": "67030478136ca341b6801890",
+  "title": "Fix my computer - Updated",
+  "description": "The computer is still not turning on after the initial fix",
+  "status": "In progress"
+}
+
+###
+
+### Deletar um ordem de serviço por ID
+DELETE {{baseUrl}}/{id}
+Accept: application/json
