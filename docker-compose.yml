@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - helpdesk
+
+  config-server:
+    image: ${CONFIG_SERVER_IMAGE}
+    container_name: 'config-server'
+    environment:
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_URI}
+      - CONFIG_SERVER_USERNAME=${CONFIG_SERVER_USERNAME}
+      - CONFIG_SERVER_PASSWORD=${CONFIG_SERVER_PASSWORD}
+      - PORT=8888
+    ports:
+      - "8888:8888"
+    expose:
+      - 8888
+    networks:
+      - helpdesk
+
+  service-discovery:
+    image: ${SERVICE_DISCOVERY_IMAGE}
+    container_name: 'service-discovery'
+    environment:
+      - CONFIG_SERVER_URI=config-server:8888
+      - PORT=8761
+    ports:
+      - "8761:8761"
+    expose:
+      - 8761
+    networks:
+      - helpdesk
+    depends_on:
+      - config-server
+    links:
+      - config-server
+
+networks:
+  helpdesk:
+    driver: bridge
