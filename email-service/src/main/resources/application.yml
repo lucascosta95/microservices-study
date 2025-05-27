@@ -1,3 +1,22 @@
 spring:
   application:
     name: email-service
+
+mail:
+  host: ${MAIL_HOST}
+  port: ${MAIL_PORT}
+  username: ${MAIL_USERNAME}
+  password: ${MAIL_PASSWORD}
+  protocol: smtp
+  text-created-order-confirmation: |
+    Hello, %s, your order has been successfully created!
+    
+    Order details:
+    Order ID: %s
+    Title: %s
+    Description: %s
+    Creation date: %s
+    Status: %s
+    Responsible technician: %s
+    
+    Thank you for shopping with us!
