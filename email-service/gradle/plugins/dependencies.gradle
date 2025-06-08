@@ -26,6 +26,10 @@ dependencies {
         because("Starter para RabbitMQ com Spring Boot")
     }
 
+    implementation('org.springframework.boot:spring-boot-starter-thymeleaf') {
+        because("Thymeleaf - Template engine para renderização de e-mails")
+    }
+
     implementation('org.springframework.cloud:spring-cloud-starter-bootstrap') {
         because("Starter para configuração do Spring Cloud")
     }

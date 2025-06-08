@@ -1,13 +1,15 @@
 package br.com.lucascosta.emailservice.services;
 
+import br.com.lucascosta.emailservice.models.enums.OperationEnum;
+import br.com.lucascosta.emailservice.utils.EmailUtils;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import models.dtos.OrderCreatedMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
 
 @Log4j2
 @Service
@@ -15,58 +17,53 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
-    @Value("${mail.text-created-order-confirmation}")
-    private String textCreatedOrderConfirmation;
+    @Value("${mail.username}")
+    private String mailUsername;
 
-    public void sendEmail(final OrderCreatedMessage orderCreatedMessage) {
-        log.info(
-                "Sending email for client: {}, order: {}",
-                orderCreatedMessage.getCustomer().email(), orderCreatedMessage.getOrder().title()
-        );
+    public void sendHtmlMail(
+            final OrderCreatedMessage orderDTO, OperationEnum operation
+    ) throws MessagingException {
 
-        var message = getSimpleMailMessage(orderCreatedMessage);
+        var message = mailSender.createMimeMessage();
+        var process = getContext(orderDTO, operation);
 
-        try {
-            mailSender.send(message);
-            log.info(
-                    "Email sent successfully for client: {}, order: {}",
-                    orderCreatedMessage.getCustomer().email(), orderCreatedMessage.getOrder().title()
-            );
-        } catch (MailException e) {
-            switch (e.getClass().getSimpleName()) {
-                case "MailAuthenticationException":
-                    log.error("Authentication failed while sending email: {}", e.getMessage());
-                    break;
-                case "MailSendException":
-                    log.error("Failed to send email: {}", e.getMessage());
-                    break;
-                case "MailParseException":
-                    log.error("Error parsing email: {}", e.getMessage());
-                    break;
-                default:
-                    log.error("An unexpected error occurred while sending email: {}", e.getMessage());
+        var subject = switch (operation) {
+            case ORDER_CREATED -> "Service Order Created Successfully";
+            case ORDER_UPDATED -> "Service Order Updated";
+            case ORDER_DELETED -> "Service Order Deleted";
+        };
+
+        EmailUtils.getMimeMessage(message, process, orderDTO, subject, mailUsername);
+
+        mailSender.send(message);
+    }
+
+    private String getContext(OrderCreatedMessage orderDTO, OperationEnum operation) {
+        return switch (operation) {
+
+            case ORDER_CREATED -> {
+                log.info("Sending service order creation email");
+
+                var context = EmailUtils.getContext(orderDTO);
+                yield templateEngine.process("email/order-created", context);
             }
-        }
+
+            case ORDER_UPDATED -> {
+                log.info("Sending service order update email");
+
+                var context = EmailUtils.getContext(orderDTO);
+                yield templateEngine.process("email/order-updated", context);
+            }
+
+            case ORDER_DELETED -> {
+                log.info("Sending service order deletion email");
+
+                var context = EmailUtils.getContext(orderDTO);
+                yield templateEngine.process("email/order-deleted", context);
+            }
+        };
     }
 
-    private SimpleMailMessage getSimpleMailMessage(OrderCreatedMessage orderCreatedMessage) {
-        var text = String.format(
-                textCreatedOrderConfirmation,
-                orderCreatedMessage.getCustomer().name(),
-                orderCreatedMessage.getOrder().id(),
-                orderCreatedMessage.getOrder().title(),
-                orderCreatedMessage.getOrder().description(),
-                orderCreatedMessage.getOrder().createAt(),
-                orderCreatedMessage.getOrder().status(),
-                orderCreatedMessage.getRequester().name()
-        );
-
-        var subject = "Order created with success!";
-        var message = new SimpleMailMessage();
-        message.setSubject(subject);
-        message.setTo(orderCreatedMessage.getCustomer().email());
-        message.setText(text);
-        return message;
-    }
 }
