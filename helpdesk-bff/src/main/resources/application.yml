@@ -6,6 +6,13 @@ spring:
     config:
       uri: 'config-server'
 
+springdoc:
+  openapi:
+    info:
+      title: 'BFF Helpdesk API'
+      description: 'Component responsible for aggregating and orchestrating Helpdesk services.'
+      version: '1.0.0'
+
 eureka:
   client:
     service-url:
