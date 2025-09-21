@@ -13,26 +13,10 @@ services:
     networks:
       - helpdesk
 
-  config-server:
-    image: ${CONFIG_SERVER_IMAGE}
-    container_name: 'config-server'
-    environment:
-      - CONFIG_SERVER_URI=${CONFIG_SERVER_URI}
-      - CONFIG_SERVER_USERNAME=${CONFIG_SERVER_USERNAME}
-      - CONFIG_SERVER_PASSWORD=${CONFIG_SERVER_PASSWORD}
-      - PORT=8888
-    ports:
-      - "8888:8888"
-    expose:
-      - 8888
-    networks:
-      - helpdesk
-
   service-discovery:
     image: ${SERVICE_DISCOVERY_IMAGE}
     container_name: 'service-discovery'
     environment:
-      - CONFIG_SERVER_URI=config-server:8888
       - PORT=8761
     ports:
       - "8761:8761"
@@ -40,10 +24,41 @@ services:
       - 8761
     networks:
       - helpdesk
+
+  api-gateway:
+    image: ${API_GATEWAY_IMAGE}
+    container_name: 'api-gateway'
+    environment:
+      - SERVER_PORT=8765
+      - EUREKA_URI=http://service-discovery:8761/eureka
+    ports:
+      - "8765:8765"
+    expose:
+      - 8765
     depends_on:
-      - config-server
+      - service-discovery
     links:
-      - config-server
+      - service-discovery
+    networks:
+      - helpdesk
+
+  config-server:
+    image: ${CONFIG_SERVER_IMAGE}
+    container_name: 'config-server'
+    environment:
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_URI}
+      - CONFIG_SERVER_USERNAME=${CONFIG_SERVER_USERNAME}
+      - CONFIG_SERVER_PASSWORD=${CONFIG_SERVER_PASSWORD}
+      - EUREKA_URI=http://service-discovery:8761/eureka
+      - PORT=8888
+    ports:
+      - "8888:8888"
+    expose:
+      - 8888
+    depends_on:
+      - service-discovery
+    networks:
+      - helpdesk
 
 networks:
   helpdesk:
