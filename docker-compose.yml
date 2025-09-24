@@ -14,49 +14,65 @@ services:
       - helpdesk
 
   service-discovery:
-    image: ${SERVICE_DISCOVERY_IMAGE}
     container_name: 'service-discovery'
-    environment:
-      - PORT=8761
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
     ports:
       - "8761:8761"
     expose:
       - 8761
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://service-discovery:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - helpdesk
 
   api-gateway:
-    image: ${API_GATEWAY_IMAGE}
     container_name: 'api-gateway'
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
     environment:
-      - SERVER_PORT=8765
-      - EUREKA_URI=http://service-discovery:8761/eureka
+      - EUREKA_URI=${EUREKA_URI}
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
     ports:
       - "8765:8765"
     expose:
       - 8765
     depends_on:
-      - service-discovery
-    links:
-      - service-discovery
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://api-gateway:8765/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - helpdesk
 
   config-server:
-    image: ${CONFIG_SERVER_IMAGE}
     container_name: 'config-server'
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
     environment:
       - CONFIG_SERVER_URI=${CONFIG_SERVER_URI}
       - CONFIG_SERVER_USERNAME=${CONFIG_SERVER_USERNAME}
       - CONFIG_SERVER_PASSWORD=${CONFIG_SERVER_PASSWORD}
-      - EUREKA_URI=http://service-discovery:8761/eureka
-      - PORT=8888
-    ports:
-      - "8888:8888"
-    expose:
-      - 8888
+      - EUREKA_URI=${EUREKA_URI}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://config-server:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - service-discovery
+      service-discovery:
+        condition: service_healthy
     networks:
       - helpdesk
 
