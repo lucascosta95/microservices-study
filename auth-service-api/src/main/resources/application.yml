@@ -1,10 +1,17 @@
 spring:
   profiles:
-    active: dev
+    active: ${PROFILE_ACTIVE}
 
   application:
     name: 'auth-service-api'
 
   cloud:
     config:
-      uri: 'config-server'
+      uri: ${CONFIG_SERVER_URI}
+
+eureka:
+  client:
+    service-url:
+      fetch-registry: true
+      register-with-eureka: true
+      defaultZone: ${EUREKA_URI}
