@@ -4,6 +4,11 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 20s
+      retries: 3
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -100,6 +105,34 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - helpdesk
+
+  email-service:
+    container_name: 'email-service'
+    build:
+      context: ./email-service
+      dockerfile: Dockerfile
+    environment:
+      - PROFILE_ACTIVE=${PROFILE_ACTIVE}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - EUREKA_URI=${EUREKA_URI}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_PROTOCOL=${MAIL_PROTOCOL}
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - helpdesk
 

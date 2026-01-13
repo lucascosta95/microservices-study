@@ -38,6 +38,14 @@ dependencies {
         because("Starter para configuração do Spring Cloud")
     }
 
+    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client') {
+        because('Starter para integrar com o Spring Cloud Eureka Server')
+    }
+
+    implementation('org.springframework.boot:spring-boot-actuator') {
+        because('Starter para monitoramento e gerenciamento de aplicações Spring Boot')
+    }
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
