@@ -119,6 +119,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_CONNECTION_TIMEOUT=${RABBITMQ_CONNECTION_TIMEOUT}
       - EUREKA_URI=${EUREKA_URI}
       - MAIL_HOST=${MAIL_HOST}
       - MAIL_PORT=${MAIL_PORT}
@@ -147,6 +148,30 @@ services:
       - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
     depends_on:
       config-server:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+    networks:
+      - helpdesk
+
+  order-service-api:
+    container_name: 'order-service-api'
+    build:
+      context: ./order-service-api
+      dockerfile: Dockerfile
+    environment:
+      - PROFILE_ACTIVE=${PROFILE_ACTIVE}
+      - EUREKA_URI=${EUREKA_URI}
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_CONNECTION_TIMEOUT=${RABBITMQ_CONNECTION_TIMEOUT}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       service-discovery:
         condition: service_healthy
