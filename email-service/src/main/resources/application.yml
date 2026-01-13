@@ -4,23 +4,3 @@ spring:
 
   profiles:
     active: ${PROFILE_ACTIVE}
-
-  rabbitmq:
-    addresses: ${RABBITMQ_HOST}
-    username: ${RABBITMQ_USERNAME}
-    password: ${RABBITMQ_PASSWORD}
-    port: ${RABBITMQ_PORT}
-
-eureka:
-  client:
-    service-url:
-      fetch-registry: true
-      register-with-eureka: true
-      defaultZone: ${EUREKA_URI}
-
-mail:
-  host: ${MAIL_HOST}
-  port: ${MAIL_PORT}
-  username: ${MAIL_USERNAME}
-  password: ${MAIL_PASSWORD}
-  protocol: ${MAIL_PROTOCOL}
