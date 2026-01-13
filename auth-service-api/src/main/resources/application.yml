@@ -4,10 +4,3 @@ spring:
 
   application:
     name: 'auth-service-api'
-
-eureka:
-  client:
-    service-url:
-      fetch-registry: true
-      register-with-eureka: true
-      defaultZone: ${EUREKA_URI}
