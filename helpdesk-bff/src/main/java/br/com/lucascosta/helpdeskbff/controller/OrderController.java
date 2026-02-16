@@ -15,6 +15,7 @@ import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "200", description = "Orders found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @GetMapping()
     ResponseEntity<List<OrderResponse>> getAll();
 
@@ -38,6 +40,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "200", description = "Orders found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @GetMapping("/page")
     ResponseEntity<Page<OrderResponse>> getAllPaginated(
             @Parameter(description = "Page number", required = true, example = "0")
@@ -60,6 +63,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @GetMapping("/{id}")
     ResponseEntity<OrderResponse> getOrderById(
             @NotNull(message = "Order id cannot be null")
@@ -74,6 +78,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @PostMapping()
     ResponseEntity<Void> save(@Valid @RequestBody final CreateOrderRequest createOrderRequest);
 
@@ -84,6 +89,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @PutMapping("/{id}")
     ResponseEntity<OrderResponse> update(
             @Parameter(description = "Order id", required = true, example = "1")
@@ -98,6 +104,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(
             @NotNull(message = "Order id cannot be null")

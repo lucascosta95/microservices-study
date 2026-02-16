@@ -14,6 +14,7 @@ import models.requests.CreateUserRequest;
 import models.requests.UpdateUserRequest;
 import models.responses.UserResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public interface UserController {
             @ApiResponse(responseCode = "200", description = "Users Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @GetMapping()
     ResponseEntity<List<UserResponse>> findAll();
 
@@ -38,10 +40,10 @@ public interface UserController {
             @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TECHNICIAN')")
     @GetMapping("/{id}")
     ResponseEntity<UserResponse> findById(
-            @Parameter(description = "User id", required = true, example = "66ff3db12ffcaa1cf7d3ced0")
-            @PathVariable("id") final String id
+            @PathVariable @Parameter(description = "User id", required = true, example = "66ff3db12ffcaa1cf7d3ced0") final String id
     );
 
     @Operation(summary = "Update user by id")
@@ -51,10 +53,10 @@ public interface UserController {
             @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     ResponseEntity<UserResponse> updateById(
-            @Parameter(description = "User id", required = true, example = "66ff3db12ffcaa1cf7d3ced0")
-            @PathVariable("id") final String id,
+            @PathVariable @Parameter(description = "User id", required = true, example = "66ff3db12ffcaa1cf7d3ced0") final String id,
             @Valid @RequestBody final UpdateUserRequest updateUserRequest
     );
 
@@ -64,6 +66,7 @@ public interface UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StandardError.class))),
     })
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping()
     ResponseEntity<Void> save(@Valid @RequestBody final CreateUserRequest createUserRequest);
 }
