@@ -1,5 +1,6 @@
 package br.com.lucascosta.helpdeskbff.client;
 
+import br.com.lucascosta.helpdeskbff.config.FeignConfig;
 import jakarta.validation.Valid;
 import models.requests.CreateUserRequest;
 import models.requests.UpdateUserRequest;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "user-service-api", path = "/api/users")
+@FeignClient(name = "user-service-api", path = "/api/users", configuration = FeignConfig.class)
 public interface UserFeignClient {
 
     @GetMapping()
