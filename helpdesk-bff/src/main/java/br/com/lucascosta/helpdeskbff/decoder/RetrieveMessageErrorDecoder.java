@@ -7,14 +7,13 @@ import feign.codec.ErrorDecoder;
 import models.exceptions.GenericFeignException;
 import models.exceptions.InternalServerErrorException;
 
-import java.io.InputStream;
 import java.util.Map;
 
 public class RetrieveMessageErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        try (InputStream bodyIs = response.body().asInputStream()) {
+        try (var bodyIs = response.body().asInputStream()) {
 
             var mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
