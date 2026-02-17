@@ -15,6 +15,8 @@ import models.requests.UpdateOrderRequest;
 import models.responses.OrderResponse;
 import models.responses.UserResponse;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Override
+    @Cacheable(value = "orders")
     public List<OrderResponse> getAll() {
         return orderRepository.findAll()
                 .stream()
@@ -42,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "orders", key = "#orderId")
     public OrderResponse getOrderById(Long orderId) {
         var entity = orderRepository.findById(orderId)
                 .orElseThrow(
@@ -54,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "orders", key = "#page + '-' + #linesPerPage + '-' + #direction + '-' + #orderBy")
     public Page<OrderResponse> getAllPaginated(Integer page, Integer linesPerPage, String direction, String orderBy) {
         final var pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
         return orderRepository.findAll(pageRequest)
@@ -62,6 +67,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CacheEvict(value = "orders", allEntries = true)
     public void save(CreateOrderRequest createOrderRequest) {
         final var requester = validateUserId(createOrderRequest.requesterId());
         final var customer = validateUserId(createOrderRequest.customerId());
@@ -77,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CacheEvict(value = "orders", allEntries = true)
     public OrderResponse update(final Long id, UpdateOrderRequest updateOrderRequest) {
         validateUsers(updateOrderRequest);
 
@@ -96,6 +103,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CacheEvict(value = "orders", allEntries = true)
     public void delete(Long id) {
         orderRepository.deleteById(id);
     }

@@ -38,6 +38,10 @@ dependencies {
         because("Starter para acesso a dados com Spring Data JPA")
     }
 
+    implementation('org.springframework.boot:spring-boot-starter-data-redis') {
+        because("Starter para acesso a dados com o Redis")
+    }
+
     implementation('org.springframework.boot:spring-boot-actuator') {
         because('Starter para monitoramento e gerenciamento de aplicações Spring Boot')
     }
