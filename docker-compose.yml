@@ -146,10 +146,14 @@ services:
       - PROFILE_ACTIVE=${PROFILE_ACTIVE}
       - EUREKA_URI=${EUREKA_URI}
       - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     depends_on:
       config-server:
         condition: service_healthy
       service-discovery:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - helpdesk
@@ -168,6 +172,8 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_PORT=${RABBITMQ_PORT}
       - RABBITMQ_CONNECTION_TIMEOUT=${RABBITMQ_CONNECTION_TIMEOUT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     depends_on:
       config-server:
         condition: service_healthy
@@ -175,16 +181,41 @@ services:
         condition: service_healthy
       service-discovery:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - helpdesk
 
   redis:
     container_name: 'redis'
     image: redis:latest
+    healthcheck:
+      test: redis-cli ping
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - helpdesk
+
+  helpdesk-bff:
+    container_name: 'helpdesk-bff'
+    build:
+      context: ./helpdesk-bff
+      dockerfile: Dockerfile
+    environment:
+      - PROFILE_ACTIVE=${PROFILE_ACTIVE}
+      - EUREKA_URI=${EUREKA_URI}
+      - CONFIG_SERVER_URI=${CONFIG_SERVER_SERVICE_URI}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
     networks:
       - helpdesk
 
