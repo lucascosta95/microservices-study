@@ -3,6 +3,7 @@ package br.com.lucascosta.helpdeskbff.config;
 import br.com.lucascosta.helpdeskbff.security.JWTAuthorizationFilter;
 import br.com.lucascosta.helpdeskbff.security.JWTUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -32,7 +33,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .addFilterBefore(new JWTAuthorizationFilter(authConfig.getAuthenticationManager(), jwtUtils), JWTAuthorizationFilter.class)
+                .addFilterBefore(
+                        new JWTAuthorizationFilter(
+                                authConfig.getAuthenticationManager(),
+                                jwtUtils,
+                                ArrayUtils.addAll(POST_WHITELIST, SWAGGER_WHITELIST)
+                        ), JWTAuthorizationFilter.class
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(
