@@ -6,7 +6,7 @@ repositories {
 
 dependencies {
     // Actuator - Monitoramento e gerenciamento de aplicações Spring Boot
-//    implementation 'org.springframework.boot:spring-boot-actuator'
+    implementation 'org.springframework.boot:spring-boot-actuator'
 
     // Biblioteca de código comum
     implementation 'br.com.lucascosta:hd-commons-lib:1.0.0'
@@ -32,8 +32,8 @@ dependencies {
     // Starter para geração de documentação OpenAPI com Springdoc
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 
-    // Starter para monitoramento e gerenciamento de aplicações Spring Boot'
-    implementation 'org.springframework.boot:spring-boot-actuator'
+    // Starter para acesso a dados com o Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
